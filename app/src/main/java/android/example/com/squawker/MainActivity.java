@@ -17,6 +17,7 @@
 package android.example.com.squawker;
 
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.database.Cursor;
 import android.example.com.squawker.following.FollowingPreferenceActivity;
 import android.example.com.squawker.provider.SquawkContract;
@@ -34,9 +35,13 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.widget.Toast;
+
+import com.google.firebase.iid.FirebaseInstanceId;
 
 public class MainActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
+
 
     private static String LOG_TAG = MainActivity.class.getSimpleName();
     private static final int LOADER_ID_MESSAGES = 0;
@@ -63,6 +68,8 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+
+
         mRecyclerView = (RecyclerView) findViewById(R.id.squawks_recycler_view);
 
         // Use this setting to improve performance if you know that changes
@@ -83,8 +90,28 @@ public class MainActivity extends AppCompatActivity implements
         mAdapter = new SquawkAdapter();
         mRecyclerView.setAdapter(mAdapter);
 
+
+        Bundle extras =getIntent().getExtras();
+        if (extras!=null && extras.containsKey("test")){
+           Log.d(LOG_TAG,"Test Notification received:"+extras.getString("test"));
+        }
+
+
         // Start the loader
         getSupportLoaderManager().initLoader(LOADER_ID_MESSAGES, null, this);
+
+        String token = FirebaseInstanceId.getInstance().getToken();
+        String msg = getString(R.string.message_token_format, token);
+        Log.d(LOG_TAG, msg);
+        //read the SharedPreferences
+        SharedPreferences sharedPreferences=PreferenceManager.getDefaultSharedPreferences(this);
+        Log.d(LOG_TAG,"Asser:"+sharedPreferences.getBoolean(SquawkContract.ASSER_KEY,false));
+        Log.d(LOG_TAG,"Cezanne:"+sharedPreferences.getBoolean(SquawkContract.CEZANNE_KEY,false));
+        Log.d(LOG_TAG,"Lyla:"+sharedPreferences.getBoolean(SquawkContract.LYLA_KEY,false));
+        Log.d(LOG_TAG,"Nikita:"+sharedPreferences.getBoolean(SquawkContract.NIKITA_KEY,false));
+        Log.d(LOG_TAG,"Jlyn:"+sharedPreferences.getBoolean(SquawkContract.JLIN_KEY,false));
+
+
 
     }
 
@@ -131,4 +158,6 @@ public class MainActivity extends AppCompatActivity implements
     public void onLoaderReset(Loader<Cursor> loader) {
         mAdapter.swapCursor(null);
     }
+
+
 }
